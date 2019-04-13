@@ -149,11 +149,11 @@ app.delete('/comment/:id', function (req, res) {
 
 // - user
 app.get('/user/:id', function (req, res) {
-    console.log(sqlite['user'].findAll(
+    sqlite['user'].findAll(
         {attributes: ['user_id', 'name', 'regdate'],
             where: {user_id: req.params.id}}).then(users => {
         res.send(JSON.stringify(users, null, 4));
-    }));
+    });
 });
 
 app.post('/user', function (req, res) {
@@ -194,12 +194,8 @@ app.use('/graphql', graph({
                     return query_result[0][0];
                 },
                 comment_list: async function get_comment_list(_, {comment_page, comment_count_per_page}) {
-                    if (comment_page == undefined){
-                        comment_page = 0;
-                    }
-                    if (comment_count_per_page == undefined){
-                        comment_count_per_page = 10;
-                    }
+                    comment_page = comment_page == undefined ? 0 : comment_page;
+                    comment_count_per_page = comment_count_per_page == undefined ? 10 : comment_count_per_page;
 
                     query_result = await sqlite['sequelize'].query(`
                         SELECT 
@@ -212,12 +208,8 @@ app.use('/graphql', graph({
                     return query_result[0];
                 },
                 post: async function get_comment(_, {post_id, comment_page, comment_count_per_page}) {
-                    if (comment_page == undefined){
-                        comment_page = 0;
-                    }
-                    if (comment_count_per_page == undefined){
-                        comment_count_per_page = 10;
-                    }
+                    comment_page = comment_page == undefined ? 0 : comment_page;
+                    comment_count_per_page = comment_count_per_page == undefined ? 10 : comment_count_per_page;
 
                     query_result = await sqlite['sequelize'].query(`
                         SELECT 
@@ -239,12 +231,8 @@ app.use('/graphql', graph({
                     return query_result[0][0];
                 },
                 post_list: async function get_comment_list(_, {comment_page, comment_count_per_page}) {
-                    if (comment_page == undefined){
-                        comment_page = 0;
-                    }
-                    if (comment_count_per_page == undefined){
-                        comment_count_per_page = 10;
-                    }
+                    comment_page = comment_page == undefined ? 0 : comment_page;
+                    comment_count_per_page = comment_count_per_page == undefined ? 10 : comment_count_per_page;
 
                     query_result = await sqlite['sequelize'].query(`
                         SELECT 
@@ -256,8 +244,48 @@ app.use('/graphql', graph({
 
                     return query_result[0];
                 },
+                user: async function get_comment(_, {user_id, post_page, post_count_per_page, comment_page, comment_count_per_page}) {
+                    comment_page = comment_page == undefined ? 0 : comment_page;
+                    comment_count_per_page = comment_count_per_page == undefined ? 10 : comment_count_per_page;
+                    post_page = post_page == undefined ? 0 : post_page;
+                    post_count_per_page = post_count_per_page == undefined ? 10 : post_count_per_page;
+
+                    query_result = await sqlite['user'].findAll(
+                        {attributes: ['user_id', 'name', 'regdate'],
+                            where: {user_id: user_id}});
+
+                    comment_list = await sqlite['sequelize'].query(`
+                        SELECT 
+                            comments.comment_id, comments.contents, comments.date,
+                            users.user_id as author_id, users.name as author
+                        FROM COMMENTS, USERS WHERE COMMENTS.USER_ID = USERS.USER_ID
+                        AND USERS.USER_ID = ? LIMIT ? OFFSET ?`,
+                        { replacements: [user_id, comment_count_per_page, comment_page * comment_count_per_page] });
+
+                    post_list = await sqlite['sequelize'].query(`
+                        SELECT 
+                            posts.post_id, posts.contents, posts.title, posts.date,
+                            users.user_id as author_id, users.name as author
+                        FROM POSTS, USERS WHERE POSTS.USER_ID = USERS.USER_ID
+                        AND USERS.USER_ID = ? LIMIT ? OFFSET ?`,
+                        { replacements: [user_id, post_count_per_page, post_page * post_count_per_page] });
+
+                    query_result[0]['commented'] = comment_list[0]
+                    query_result[0]['posted'] = post_list[0]
+                    return query_result[0];
+                },
+                user_list:async function get_comment_list(_, {user_page, user_count_per_page}) {
+                    user_page = user_page == undefined ? 0 : user_page;
+                    user_count_per_page = user_count_per_page == undefined ? 10 : user_count_per_page;
+
+                    query_result = await sqlite['user'].findAll(
+                        {attributes: ['user_id', 'name', 'regdate'],
+                            limit:user_count_per_page,
+                            offset:user_page * user_count_per_page});;
+                    return query_result;
+                }
             }
-    }
+        }
     }),
     graphiql: true,
 }));
