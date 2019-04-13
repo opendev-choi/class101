@@ -1,0 +1,14 @@
+{
+  "name": "class101",
+  "version": "1.0.0",
+  "description": "coding test for class101",
+  "main": "index.js",
+  "repository": "https://github.com/opendev-choi/class101.git",
+  "author": "opendev-choi",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4",
+    "sequelize": "^5.3.5",
+    "sqlite3": "^4.0.6"
+  }
+}
