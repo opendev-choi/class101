@@ -2,6 +2,7 @@ schema = `
             type post {
                 post_id: ID!,
                 author: String,
+                author_id: Int,
                 title: String,
                 contents: String,
                 date: String,
@@ -9,6 +10,7 @@ schema = `
             }
             type comment {
                 comment_id: ID!,
+                author_id: Int,
                 author: String,
                 contents: String,
                 date: String
