@@ -183,9 +183,71 @@ app.use('/graphql', graph({
         typeDefs: graphql_schema,
         resolvers: {
             Query: {
+                comment_list: async function get_comment_list(_, {comment_page, comment_count_per_page}) {
+                    if (comment_page == undefined){
+                        comment_page = 0;
+                    }
+                    if (comment_count_per_page == undefined){
+                        comment_count_per_page = 10;
+                    }
 
+                    query_result = await sqlite['sequelize'].query(`
+                        SELECT 
+                          comments.comment_id, comments.contents, comments.date,
+                          users.user_id as author_id, users.name as author
+                        FROM COMMENTS, USERS WHERE COMMENTS.USER_ID = USERS.USER_ID
+                        LIMIT ? OFFSET ?`,
+                        {replacements: [comment_count_per_page, comment_page * comment_count_per_page]});
+
+                    return query_result[0];
+                },
+                post: async function get_comment(_, {post_id, comment_page, comment_count_per_page}) {
+                    if (comment_page == undefined){
+                        comment_page = 0;
+                    }
+                    if (comment_count_per_page == undefined){
+                        comment_count_per_page = 10;
+                    }
+
+                    query_result = await sqlite['sequelize'].query(`
+                        SELECT 
+                          posts.post_id, posts.contents, posts.title, posts.date,
+                          users.user_id as author_id, users.name as author
+                        FROM POSTS, USERS WHERE POSTS.USER_ID = USERS.USER_ID
+                        AND POSTS.post_id = ?`,
+                        { replacements: [post_id] });
+
+                    comment_list = await sqlite['sequelize'].query(`
+                        SELECT 
+                          comments.comment_id, comments.contents, comments.date,
+                          users.user_id as author_id, users.name as author
+                        FROM COMMENTS, USERS WHERE COMMENTS.USER_ID = USERS.USER_ID
+                        AND comments.post_id = ? LIMIT ? OFFSET ?`,
+                        { replacements: [post_id, comment_count_per_page, comment_page * comment_count_per_page] });
+
+                    query_result[0][0]['comments'] = comment_list[0]
+                    return query_result[0][0];
+                },
+                post_list: async function get_comment_list(_, {comment_page, comment_count_per_page}) {
+                    if (comment_page == undefined){
+                        comment_page = 0;
+                    }
+                    if (comment_count_per_page == undefined){
+                        comment_count_per_page = 10;
+                    }
+
+                    query_result = await sqlite['sequelize'].query(`
+                        SELECT 
+                          posts.post_id, posts.contents, posts.title, posts.date,
+                          users.user_id as author_id, users.name as author
+                        FROM POSTS, USERS WHERE POSTS.USER_ID = USERS.USER_ID
+                        LIMIT ? OFFSET ?`,
+                        {replacements: [comment_count_per_page, comment_page * comment_count_per_page]});
+
+                    return query_result[0];
+                },
             }
-        }
+    }
     }),
     graphiql: true,
 }));
@@ -194,4 +256,3 @@ app.use('/graphql', graph({
 app.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
-
