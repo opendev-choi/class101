@@ -7,15 +7,15 @@ const { makeExecutableSchema } = require('graphql-tools');
 
 const app = express();
 
-console.log(SQLite['user']);
-
 app.use(bodyParser.json());
 
 // - Post
 app.get('/post/:id', function (req, res) {
-    SQLite['post'].findAll(
-        {attributes: ['post_id', 'author', 'title', 'contents', 'date'],
+    sqlite['post'].findAll(
+        {
+            attributes: ['post_id', 'user_id', 'title', 'contents', 'date'],
             where: {post_id: req.params.id}}).then(post => {
+        console.log(post);
         res.send(JSON.stringify(post, null, 4));
     });
 });
@@ -31,8 +31,8 @@ app.post('/post', function (req, res) {
         return;
     }
 
-    SQLite['post'].create({
-        author: req.body["author_id"],
+    sqlite['post'].create({
+        user_id: req.body["author_id"],
         title: req.body["title"],
         contents: req.body["contents"],
         date: new Date().toISOString()
@@ -55,7 +55,7 @@ app.put('/post/:id', function (req, res) {
         return;
     }
 
-    SQLite['post'].update({
+    sqlite['post'].update({
         contents: req.body["contents"]
     }, {
         where: { post_id: req.params.id }
@@ -68,7 +68,7 @@ app.put('/post/:id', function (req, res) {
 });
 
 app.delete('/post/:id', function (req, res) {
-    SQLite['post'].destroy({
+    sqlite['post'].destroy({
         where: { post_id: req.params.id }
     })
         .then(() => {
@@ -80,8 +80,9 @@ app.delete('/post/:id', function (req, res) {
 
 // - comment
 app.get('/comment/:id', function (req, res) {
-    console.log(SQLite['comment'].findAll(
-        {attributes: ['comment_id', 'author', 'contents', 'date'],
+    console.log(sqlite['comment'].findAll(
+        {
+            attributes: ['comment_id', 'user_id', 'post_id', 'contents', 'date'],
             where: {comment_id: req.params.id}}).then(comment => {
         res.send(JSON.stringify(comment, null, 4));
     }));
@@ -99,9 +100,9 @@ app.post('/comment', function (req, res) {
         return;
     }
 
-    SQLite['comment'].create({
+    sqlite['comment'].create({
         post_id: req.body["post_id"],
-        author: req.body["author_id"],
+        user_id: req.body["author_id"],
         contents: req.body["contents"],
         date: new Date().toISOString()
     }).then(created_comment => {
@@ -123,7 +124,7 @@ app.put('/comment/:id', function (req, res) {
         return;
     }
 
-    SQLite['comment'].update({
+    sqlite['comment'].update({
         contents: req.body["contents"]
     }, {
         where: { comment_id: req.params.id }
@@ -136,7 +137,7 @@ app.put('/comment/:id', function (req, res) {
 });
 
 app.delete('/comment/:id', function (req, res) {
-    SQLite['comment'].destroy({
+    sqlite['comment'].destroy({
         where: { comment_id: req.params.id }
     })
         .then(() => {
@@ -148,7 +149,7 @@ app.delete('/comment/:id', function (req, res) {
 
 // - user
 app.get('/user/:id', function (req, res) {
-    console.log(SQLite['user'].findAll(
+    console.log(sqlite['user'].findAll(
         {attributes: ['user_id', 'name', 'regdate'],
             where: {user_id: req.params.id}}).then(users => {
         res.send(JSON.stringify(users, null, 4));
@@ -165,7 +166,7 @@ app.post('/user', function (req, res) {
             "reason": "field missing one of ['name']"
         })
     }
-    SQLite['user'].create({
+    sqlite['user'].create({
         name: req.body["name"],
         regdate: new Date().toISOString() }).then(created_user => {
             console.log(created_user.user_id);
