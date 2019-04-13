@@ -44,6 +44,25 @@ app.post('/post', function (req, res) {
 });
 
 app.put('/post/:id', function (req, res) {
+    if (req.body["contents"] == undefined)
+    {
+        res.send({
+            "status": "error",
+            "reason": "field missing not null field one of ['contents']"
+        });
+        return;
+    }
+
+    SQLite['post'].update({
+        contents: req.body["contents"]
+    }, {
+        where: { post_id: req.params.id }
+    })
+        .then(() => {
+            res.send({
+                "status": "success"
+            })
+        });
 });
 
 app.delete('/post/:id', function (req, res) {
@@ -85,6 +104,25 @@ app.post('/comment', function (req, res) {
 });
 
 app.put('/comment/:id', function (req, res) {
+    if (req.body["contents"] == undefined)
+    {
+        res.send({
+            "status": "error",
+            "reason": "field missing not null field one of ['contents']"
+        });
+        return;
+    }
+
+    SQLite['comment'].update({
+        contents: req.body["contents"]
+    }, {
+        where: { comment_id: req.params.id }
+    })
+    .then(() => {
+        res.send({
+            "status": "success"
+        })
+    })
 });
 
 app.delete('/comment/:id', function (req, res) {
