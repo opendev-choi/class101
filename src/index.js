@@ -1,6 +1,9 @@
-const express = require('express');
+const graph      = require('express-graphql');
+const sqlite     = require('./sqlite.js');
+const express    = require('express');
 const bodyParser = require('body-parser');
-const SQLite = require('./sqlite.js');
+const graphql_schema = require('./graphql_schema.js')
+const { makeExecutableSchema } = require('graphql-tools');
 
 const app = express();
 
@@ -176,32 +179,7 @@ app.post('/user', function (req, res) {
 
 app.use('/graphql', graph({
     schema: makeExecutableSchema({
-        typeDefs: ` 
-            type post {
-                post_id: ID!,
-                author: String,
-                title: String,
-                contents: String,
-                date: String,
-                comments: [comment]
-            }
-            type comment {
-                comment_id: ID!,
-                author: String,
-                contents: String,
-                date: String
-            }
-            type user {
-                user_id: ID!, 
-                name: String,
-                regdate: String
-                posted: [post],
-                commented: [comment]
-            }
-            type Query{
-
-            }
-            `,
+        typeDefs: graphql_schema,
         resolvers: {
             Query: {
 
