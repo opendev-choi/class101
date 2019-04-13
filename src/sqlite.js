@@ -19,7 +19,9 @@ class User extends Model {}
 User.init({
     // attributes
     user_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
     },
     name: {
         type: Sequelize.STRING
@@ -36,7 +38,9 @@ class Post extends Model {}
 Post.init({
     // attributes
     post_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
     },
     author: {
         type: Sequelize.INTEGER
@@ -61,7 +65,9 @@ class Comment extends Model {}
 Comment.init({
     // attributes
     comment_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
     },
     author: {
         type: Sequelize.INTEGER
