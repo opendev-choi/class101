@@ -183,6 +183,16 @@ app.use('/graphql', graph({
         typeDefs: graphql_schema,
         resolvers: {
             Query: {
+                comment: async function get_comment(_, {comment_id}) {
+                    query_result = await sqlite['sequelize'].query(`
+                        SELECT 
+                          comments.comment_id, comments.contents, comments.date,
+                          users.user_id as author_id, users.name as author
+                        FROM COMMENTS, USERS WHERE COMMENTS.USER_ID = USERS.USER_ID
+                        AND comments.comment_id = ?`,
+                        { replacements: [comment_id] });
+                    return query_result[0][0];
+                },
                 comment_list: async function get_comment_list(_, {comment_page, comment_count_per_page}) {
                     if (comment_page == undefined){
                         comment_page = 0;
