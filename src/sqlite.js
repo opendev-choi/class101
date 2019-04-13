@@ -42,9 +42,9 @@ Post.init({
         autoIncrement: true,
         primaryKey: true
     },
-    author: {
-        type: Sequelize.INTEGER
-    },
+    // author: {
+    //     type: Sequelize.INTEGER
+    // },
     title: {
         type: Sequelize.STRING
     },
@@ -69,12 +69,12 @@ Comment.init({
         autoIncrement: true,
         primaryKey: true
     },
-    post_id: {
-        type: Sequelize.INTEGER
-    },
-    author: {
-        type: Sequelize.INTEGER
-    },
+    // post_id: {
+    //     type: Sequelize.INTEGER
+    // },
+    // author: {
+    //     type: Sequelize.INTEGER
+    // },
     contents: {
         type: Sequelize.STRING
     },
@@ -86,11 +86,17 @@ Comment.init({
     modelName: 'comment'
 });
 
+User.hasMany(Comment, {foreignKey: 'user_id'});
+User.hasMany(Post, {foreignKey: 'user_id'});
+
+Post.hasMany(Comment, {foreignKey: 'post_id'})
 schema = {
     "user": User,
     "comment": Comment,
     "post": Post
 }
+
+sequelize.sync();
 
 
 module.exports = schema
