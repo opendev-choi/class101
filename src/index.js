@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const SQLite = require('./sqlite.js');
 
-
 const app = express();
 
 console.log(SQLite['user']);
@@ -173,6 +172,45 @@ app.post('/user', function (req, res) {
             })
         });
 });
+
+
+app.use('/graphql', graph({
+    schema: makeExecutableSchema({
+        typeDefs: ` 
+            type post {
+                post_id: ID!,
+                author: String,
+                title: String,
+                contents: String,
+                date: String,
+                comments: [comment]
+            }
+            type comment {
+                comment_id: ID!,
+                author: String,
+                contents: String,
+                date: String
+            }
+            type user {
+                user_id: ID!, 
+                name: String,
+                regdate: String
+                posted: [post],
+                commented: [comment]
+            }
+            type Query{
+
+            }
+            `,
+        resolvers: {
+            Query: {
+
+            }
+        }
+    }),
+    graphiql: true,
+}));
+
 
 app.listen(3000, function () {
     console.log('Example app listening on port 3000!');
