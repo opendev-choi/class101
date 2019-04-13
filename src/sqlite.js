@@ -93,7 +93,8 @@ Post.hasMany(Comment, {foreignKey: 'post_id'})
 schema = {
     "user": User,
     "comment": Comment,
-    "post": Post
+    "post": Post,
+    "sequelize": sequelize
 }
 
 sequelize.sync();
