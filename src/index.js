@@ -1,20 +1,46 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const SQLite = require('./sqlite.js');
+
 
 const app = express();
 
-console.log(SQLite['user'])
+console.log(SQLite['user']);
+
+app.use(bodyParser.json());
 
 // - Post
 app.get('/post/:id', function (req, res) {
-    console.log(SQLite['post'].findAll(
+    SQLite['post'].findAll(
         {attributes: ['post_id', 'author', 'title', 'contents', 'date'],
             where: {post_id: req.params.id}}).then(post => {
         res.send(JSON.stringify(post, null, 4));
-    }));
+    });
 });
 
-app.post('/post/:id', function (req, res) {
+app.post('/post', function (req, res) {
+    // validation check
+    if (req.body["author_id"] == undefined || req.body["title"] == undefined)
+    {
+        res.send({
+            "status": "error",
+            "reason": "field missing not null field one of ['author_id', title]"
+        });
+        return;
+    }
+
+    SQLite['post'].create({
+        author: req.body["author_id"],
+        title: req.body["title"],
+        contents: req.body["contents"],
+        date: new Date().toISOString()
+    }).then(created_post => {
+        console.log(created_post.post_id);
+        res.send({
+            "status": "success",
+            "id": created_post.post_id
+        })
+    });
 });
 
 app.put('/post/:id', function (req, res) {
@@ -32,7 +58,30 @@ app.get('/comment/:id', function (req, res) {
     }));
 });
 
-app.post('/comment/:id', function (req, res) {
+app.post('/comment', function (req, res) {
+    // validation check
+    if (req.body["post_id"] == undefined || req.body["author_id"] == undefined  ||
+        req.body["contents"] == undefined)
+    {
+        res.send({
+            "status": "error",
+            "reason": "field missing not null field one of ['post_id', 'author_id', 'contents']"
+        });
+        return;
+    }
+
+    SQLite['comment'].create({
+        post_id: req.body["post_id"],
+        author: req.body["author_id"],
+        contents: req.body["contents"],
+        date: new Date().toISOString()
+    }).then(created_comment => {
+        console.log(created_comment.comment_id);
+        res.send({
+            "status": "success",
+            "id": created_comment.comment_id
+        })
+    });
 });
 
 app.put('/comment/:id', function (req, res) {
@@ -50,7 +99,25 @@ app.get('/user/:id', function (req, res) {
     }));
 });
 
-app.post('/user/:id', function (req, res) {
+app.post('/user', function (req, res) {
+    // validation check / need name only
+    // { "name": "John Doe" }
+    if (req.body["name"] == undefined)
+    {
+        res.send({
+            "status": "error",
+            "reason": "field missing one of ['name']"
+        })
+    }
+    SQLite['user'].create({
+        name: req.body["name"],
+        regdate: new Date().toISOString() }).then(created_user => {
+            console.log(created_user.user_id);
+            res.send({
+                "status": "success",
+                "id": created_user.user_id
+            })
+        });
 });
 
 app.listen(3000, function () {
