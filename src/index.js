@@ -66,6 +66,14 @@ app.put('/post/:id', function (req, res) {
 });
 
 app.delete('/post/:id', function (req, res) {
+    SQLite['post'].destroy({
+        where: { post_id: req.params.id }
+    })
+        .then(() => {
+            res.send({
+                "status": "success"
+            })
+        });
 });
 
 // - comment
@@ -126,6 +134,14 @@ app.put('/comment/:id', function (req, res) {
 });
 
 app.delete('/comment/:id', function (req, res) {
+    SQLite['comment'].destroy({
+        where: { comment_id: req.params.id }
+    })
+        .then(() => {
+            res.send({
+                "status": "success"
+            })
+        });
 });
 
 // - user
