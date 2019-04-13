@@ -69,6 +69,9 @@ Comment.init({
         autoIncrement: true,
         primaryKey: true
     },
+    post_id: {
+        type: Sequelize.INTEGER
+    },
     author: {
         type: Sequelize.INTEGER
     },
