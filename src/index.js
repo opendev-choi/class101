@@ -7,27 +7,27 @@ const { makeExecutableSchema } = require("graphql-tools");
 
 const app = express();
 
-const createComment = require("./controller/create/createComment.js");
-const createUser = require("./controller/create/createUser.js");
-const createPost = require("./controller/create/createPost.js");
+const selectUser = require("./controller/user/selectUser.js");
+const createUser = require("./controller/user/createUser.js");
 
-const selectComment = require("./controller/select/selectComment.js");
-const selectUser = require("./controller/select/selectUser.js");
-const selectPost = require("./controller/select/selectPost.js");
+const createComment = require("./controller/comment/createComment.js");
+const selectComment = require("./controller/comment/selectComment.js");
+const deleteComment = require("./controller/comment/deleteComment.js");
+const updateComment = require("./controller/comment/updateComment.js");
 
-const deleteComment = require("./controller/delete/deleteComment.js");
-const deletePost = require("./controller/delete/deletePost.js");
+const createPost = require("./controller/post/createPost.js");
+const selectPost = require("./controller/post/selectPost.js");
+const deletePost = require("./controller/post/deletePost.js");
+const updatePost = require("./controller/post/updatePost.js");
 
-const updateComment = require("./controller/update/updateComment.js");
-const updatePost = require("./controller/update/updatePost.js");
+const graphqlSingleUser = require("./controller/graphql/user/singleUserQuery.js")
+const graphqlListUser = require("./controller/graphql/user/listUserQuery.js")
 
-const graphqlSingleUser = require("./controller/graphql/single/userQuery.js")
-const graphqlSinglePost = require("./controller/graphql/single/postQuery.js")
-const graphqlSingleComment = require("./controller/graphql/single/commentQuery.js")
+const graphqlSinglePost = require("./controller/graphql/post/singlePostQuery.js")
+const graphqlListPost = require("./controller/graphql/post/listPostQuery.js")
 
-const graphqlListUser = require("./controller/graphql/list/userQuery.js")
-const graphqlListPost = require("./controller/graphql/list/postQuery.js")
-const graphqlListComment = require("./controller/graphql/list/commentQuery.js")
+const graphqlSingleComment = require("./controller/graphql/comment/singleCommentQuery.js")
+const graphqlListComment = require("./controller/graphql/comment/listCommentQuery.js")
 
 app.use(bodyParser.json());
 
