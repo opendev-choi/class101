@@ -21,6 +21,9 @@ DB : sqlite3
 3. 다음 명령어를 실행 `node src/index.js`
 
 ## 설명 및 의도
+1. 먼저 REST API 는 단일 조회/수정/삭제/생성 만을 위해 제작되었습니다.
+2. 복합 조회 (해당 유저가 작성한 댓글 및 작성글 조회) 는 Graphql 로 조회하게끔 제작되었습니다.
+3. Graphql 조회시 2depth 이상 되는 경우에는 2depth 이상부터는 데이터를 불러오지 않도록 했습니다. (이는 user가 작성한 게시글을 조회했을 경우 comment 까지 전부 불러올 필요는 없다고 생각했기 때문입니다) 
 
 
 ## REST Api define & example
