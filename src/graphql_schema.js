@@ -27,7 +27,7 @@ schema = `
                 post_list(post_page: Int, post_count_per_page: Int): [post],
                 comment(comment_id: Int!): comment,
                 comment_list(comment_page: Int, comment_count_per_page: Int): [comment],
-                user(user_id: Int!, post_page: Int, post_count_per_page: Int, comment_page: Int, comment_count_perf_page: Int): user,
+                user(user_id: Int!, post_page: Int, post_count_per_page: Int, comment_page: Int, comment_count_per_page: Int): user,
                 user_list(user_page: Int, user_count_per_page: Int): [user]
             }
             `
