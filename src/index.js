@@ -46,7 +46,7 @@ app.post('/post', function (req, res) {
 });
 
 app.put('/post/:id', function (req, res) {
-    if (req.body["contents"] == undefined)
+    if (req.body["contents"] == undefined || req.body["title"] == undefined)
     {
         res.send({
             "status": "error",
@@ -56,6 +56,7 @@ app.put('/post/:id', function (req, res) {
     }
 
     sqlite['post'].update({
+        title: req.body["title"],
         contents: req.body["contents"]
     }, {
         where: { post_id: req.params.id }
