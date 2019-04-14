@@ -10,19 +10,18 @@ const app = express();
 app.use(bodyParser.json());
 
 // - Post
-app.get("/post/:id", function (req, res) {
-    sqlite.post.findAll(
+app.get("/post/:id", async function (req, res) {
+    qry_result = await sqlite.post.findAll(
         {
             attributes: ["post_id", "user_id", "title", "contents", "date"],
-            where: {post_id: req.params.id}}).then(post => {
-        res.send(post);
-    });
+            where: {post_id: req.params.id}
+        });
+    res.send(qry_result);
 });
 
-app.post("/post", function (req, res) {
+app.post("/post", async function (req, res) {
     // validation check
-    if (!req.body.author_id || !req.body.title)
-    {
+    if (!req.body.author_id || !req.body.title) {
         res.send({
             "status": "error",
             "reason": "field missing not null field one of ['author_id', 'title']"
@@ -30,22 +29,21 @@ app.post("/post", function (req, res) {
         return;
     }
 
-    sqlite.post.create({
+    created_post = await sqlite.post.create({
         user_id: req.body.author_id,
         title: req.body.title,
         contents: req.body.contents,
         date: new Date().toISOString()
-    }).then(created_post => {
-        res.send({
-            "status": "success",
-            "id": created_post.post_id
-        })
     });
+
+    res.send({
+        "status": "success",
+        "id": created_post.post_id
+    })
 });
 
-app.put("/post/:id", function (req, res) {
-    if (!req.body.contents || !req.body.title)
-    {
+app.put("/post/:id", async function (req, res) {
+    if (!req.body.contents || !req.body.title) {
         res.send({
             "status": "error",
             "reason": "field missing not null field one of ['contents']"
@@ -53,44 +51,42 @@ app.put("/post/:id", function (req, res) {
         return;
     }
 
-    sqlite.post.update({
+    await sqlite.post.update({
         title: req.body.title,
         contents: req.body.contents
     }, {
         where: { post_id: req.params.id }
-    })
-        .then(() => {
-            res.send({
-                "status": "success"
-            })
-        });
-});
+    });
 
-app.delete("/post/:id", function (req, res) {
-    sqlite.post.destroy({
-        where: { post_id: req.params.id }
-    })
-        .then(() => {
-            res.send({
-                "status": "success"
-            })
-        });
-});
-
-// - comment
-app.get("/comment/:id", function (req, res) {
-    sqlite.comment.findAll(
-        {
-            attributes: ["comment_id", "user_id", "post_id", "contents", "date"],
-            where: {comment_id: req.params.id}}).then(comment => {
-        res.send(comment);
+    res.send({
+        "status": "success"
     });
 });
 
-app.post("/comment", function (req, res) {
+app.delete("/post/:id", async function (req, res) {
+    await sqlite.post.destroy({
+        where: { post_id: req.params.id }
+    });
+
+    res.send({
+        "status": "success"
+    });
+});
+
+// - comment
+app.get("/comment/:id", async function (req, res) {
+    qry_result = await sqlite.comment.findAll(
+        {
+            attributes: ["comment_id", "user_id", "post_id", "contents", "date"],
+            where: {comment_id: req.params.id}
+        });
+
+    res.send(qry_result);
+});
+
+app.post("/comment", async function (req, res) {
     // validation check
-    if (!req.body.post_id || !req.body.author_id || !req.body.contents)
-    {
+    if (!req.body.post_id || !req.body.author_id || !req.body.contents) {
         res.send({
             "status": "error",
             "reason": "field missing not null field one of ['post_id', 'author_id', 'contents']"
@@ -98,22 +94,21 @@ app.post("/comment", function (req, res) {
         return;
     }
 
-    sqlite.comment.create({
+    qry_result = await sqlite.comment.create({
         post_id: req.body.post_id,
         user_id: req.body.author_id,
         contents: req.body.contents,
         date: new Date().toISOString()
-    }).then(created_comment => {
-        res.send({
-            "status": "success",
-            "id": created_comment.comment_id
-        })
+    })
+
+    res.send({
+        "status": "success",
+        "id": qry_result.comment_id
     });
 });
 
-app.put("/comment/:id", function (req, res) {
-    if (!req.body.contents)
-    {
+app.put("/comment/:id", async function (req, res) {
+    if (!req.body.contents) {
         res.send({
             "status": "error",
             "reason": "field missing not null field one of ['contents']"
@@ -121,56 +116,55 @@ app.put("/comment/:id", function (req, res) {
         return;
     }
 
-    sqlite.comment.update({
+    await sqlite.comment.update({
         contents: req.body.contents
     }, {
         where: { comment_id: req.params.id }
-    })
-    .then(() => {
-        res.send({
-            "status": "success"
-        })
-    })
-});
+    });
 
-app.delete("/comment/:id", function (req, res) {
-    sqlite.comment.destroy({
-        where: { comment_id: req.params.id }
-    })
-        .then(() => {
-            res.send({
-                "status": "success"
-            })
-        });
-});
-
-// - user
-app.get("/user/:id", function (req, res) {
-    sqlite.user.findAll(
-        {attributes: ["user_id", "name", "regdate"],
-            where: {user_id: req.params.id}}).then(users => {
-        res.send(users);
+    res.send({
+        "status": "success"
     });
 });
 
-app.post("/user", function (req, res) {
+app.delete("/comment/:id", async function (req, res) {
+    await sqlite.comment.destroy({
+        where: { comment_id: req.params.id }
+    });
+
+    res.send({
+        "status": "success"
+    });
+});
+
+// - user
+app.get("/user/:id", async function (req, res) {
+    qry_result = await sqlite.user.findAll({
+            attributes: ["user_id", "name", "regdate"],
+            where: {user_id: req.params.id}
+        });
+    res.send(qry_result);
+});
+
+app.post("/user", async function (req, res) {
     // validation check / need name only
     // { "name": "John Doe" }
-    if (!req.body.name)
-    {
+    if (!req.body.name) {
         res.send({
             "status": "error",
             "reason": "field missing one of ['name']"
         })
     }
-    sqlite.user.create({
+
+    qry_result = await sqlite.user.create({
         name: req.body.name,
-        regdate: new Date().toISOString() }).then(created_user => {
-            res.send({
-                "status": "success",
-                "id": created_user.user_id
-            })
-        });
+        regdate: new Date().toISOString()
+    });
+
+    res.send({
+        "status": "success",
+        "id": qry_result.user_id
+    })
 });
 
 
