@@ -5,9 +5,22 @@ class101 Coding test
 name|version
 ----|-------
 Node.js|v11.14.0
-express|4.16.4
-sequelize|5.3.5
-sqlite3|4.0.6 
+express| 4.16.4
+express-graphql| 0.7.1
+graphql| 14.2.1
+graphql-tools| 4.0.4
+sequelize| 5.3.5
+sqlite3| 4.0.6
+yarn| 1.15.2
+
+DB : sqlite3
+
+## installation
+1. 해당 프로젝트의 루트 디렉토리에서 시작한다.
+2. 다음 명령어를 실행 `yarn`
+3. 다음 명령어를 실행 `node src/index.js`
+
+## 설명 및 의도
 
 
 ## REST Api define & example
