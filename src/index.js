@@ -16,7 +16,7 @@ app.get('/post/:id', function (req, res) {
             attributes: ['post_id', 'user_id', 'title', 'contents', 'date'],
             where: {post_id: req.params.id}}).then(post => {
         console.log(post);
-        res.send(JSON.stringify(post, null, 4));
+        res.send(post);
     });
 });
 
@@ -85,7 +85,7 @@ app.get('/comment/:id', function (req, res) {
         {
             attributes: ['comment_id', 'user_id', 'post_id', 'contents', 'date'],
             where: {comment_id: req.params.id}}).then(comment => {
-        res.send(JSON.stringify(comment, null, 4));
+        res.send(comment);
     }));
 });
 
@@ -153,7 +153,7 @@ app.get('/user/:id', function (req, res) {
     sqlite['user'].findAll(
         {attributes: ['user_id', 'name', 'regdate'],
             where: {user_id: req.params.id}}).then(users => {
-        res.send(JSON.stringify(users, null, 4));
+        res.send(users);
     });
 });
 
