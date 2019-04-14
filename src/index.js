@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 
 // - Post
 app.get('/post/:id', function (req, res) {
-    sqlite['post'].findAll(
+    sqlite.post.findAll(
         {
             attributes: ['post_id', 'user_id', 'title', 'contents', 'date'],
             where: {post_id: req.params.id}}).then(post => {
@@ -22,7 +22,7 @@ app.get('/post/:id', function (req, res) {
 
 app.post('/post', function (req, res) {
     // validation check
-    if (req.body["author_id"] == undefined || req.body["title"] == undefined)
+    if (req.body.author_id == undefined || req.body.title == undefined)
     {
         res.send({
             "status": "error",
@@ -31,10 +31,10 @@ app.post('/post', function (req, res) {
         return;
     }
 
-    sqlite['post'].create({
-        user_id: req.body["author_id"],
-        title: req.body["title"],
-        contents: req.body["contents"],
+    sqlite.post.create({
+        user_id: req.body.author_id,
+        title: req.body.title,
+        contents: req.body.contents,
         date: new Date().toISOString()
     }).then(created_post => {
         console.log(created_post.post_id);
@@ -46,7 +46,7 @@ app.post('/post', function (req, res) {
 });
 
 app.put('/post/:id', function (req, res) {
-    if (req.body["contents"] == undefined || req.body["title"] == undefined)
+    if (req.body.contents == undefined || req.body.title == undefined)
     {
         res.send({
             "status": "error",
@@ -55,9 +55,9 @@ app.put('/post/:id', function (req, res) {
         return;
     }
 
-    sqlite['post'].update({
-        title: req.body["title"],
-        contents: req.body["contents"]
+    sqlite.post.update({
+        title: req.body.title,
+        contents: req.body.contents
     }, {
         where: { post_id: req.params.id }
     })
@@ -69,7 +69,7 @@ app.put('/post/:id', function (req, res) {
 });
 
 app.delete('/post/:id', function (req, res) {
-    sqlite['post'].destroy({
+    sqlite.post.destroy({
         where: { post_id: req.params.id }
     })
         .then(() => {
@@ -81,18 +81,18 @@ app.delete('/post/:id', function (req, res) {
 
 // - comment
 app.get('/comment/:id', function (req, res) {
-    console.log(sqlite['comment'].findAll(
+    sqlite.comment.findAll(
         {
             attributes: ['comment_id', 'user_id', 'post_id', 'contents', 'date'],
             where: {comment_id: req.params.id}}).then(comment => {
         res.send(comment);
-    }));
+    });
 });
 
 app.post('/comment', function (req, res) {
     // validation check
-    if (req.body["post_id"] == undefined || req.body["author_id"] == undefined  ||
-        req.body["contents"] == undefined)
+    if (req.body.post_id == undefined || req.body.author_id == undefined  ||
+        req.body.contents == undefined)
     {
         res.send({
             "status": "error",
@@ -101,13 +101,13 @@ app.post('/comment', function (req, res) {
         return;
     }
 
-    sqlite['comment'].create({
-        post_id: req.body["post_id"],
-        user_id: req.body["author_id"],
-        contents: req.body["contents"],
+    sqlite.comment.create({
+        post_id: req.body.post_id,
+        user_id: req.body.author_id,
+        contents: req.body.contents,
         date: new Date().toISOString()
     }).then(created_comment => {
-        console.log(created_comment.comment_id);
+        created_comment.comment_id);
         res.send({
             "status": "success",
             "id": created_comment.comment_id
@@ -116,7 +116,7 @@ app.post('/comment', function (req, res) {
 });
 
 app.put('/comment/:id', function (req, res) {
-    if (req.body["contents"] == undefined)
+    if (req.body.contents == undefined)
     {
         res.send({
             "status": "error",
@@ -125,8 +125,8 @@ app.put('/comment/:id', function (req, res) {
         return;
     }
 
-    sqlite['comment'].update({
-        contents: req.body["contents"]
+    sqlite.comment.update({
+        contents: req.body.contents
     }, {
         where: { comment_id: req.params.id }
     })
@@ -138,7 +138,7 @@ app.put('/comment/:id', function (req, res) {
 });
 
 app.delete('/comment/:id', function (req, res) {
-    sqlite['comment'].destroy({
+    sqlite.comment.destroy({
         where: { comment_id: req.params.id }
     })
         .then(() => {
@@ -150,7 +150,7 @@ app.delete('/comment/:id', function (req, res) {
 
 // - user
 app.get('/user/:id', function (req, res) {
-    sqlite['user'].findAll(
+    sqlite.user.findAll(
         {attributes: ['user_id', 'name', 'regdate'],
             where: {user_id: req.params.id}}).then(users => {
         res.send(users);
@@ -160,15 +160,15 @@ app.get('/user/:id', function (req, res) {
 app.post('/user', function (req, res) {
     // validation check / need name only
     // { "name": "John Doe" }
-    if (req.body["name"] == undefined)
+    if (req.body.name == undefined)
     {
         res.send({
             "status": "error",
             "reason": "field missing one of ['name']"
         })
     }
-    sqlite['user'].create({
-        name: req.body["name"],
+    sqlite.user.create({
+        name: req.body.name,
         regdate: new Date().toISOString() }).then(created_user => {
             console.log(created_user.user_id);
             res.send({
@@ -185,7 +185,7 @@ app.use('/graphql', graph({
         resolvers: {
             Query: {
                 comment: async function get_comment(_, {comment_id}) {
-                    query_result = await sqlite['sequelize'].query(`
+                    query_result = await sqlite.sequelize.query(`
                         SELECT 
                           comments.comment_id, comments.contents, comments.date,
                           users.user_id as author_id, users.name as author
@@ -198,7 +198,7 @@ app.use('/graphql', graph({
                     comment_page = comment_page == undefined ? 0 : comment_page;
                     comment_count_per_page = comment_count_per_page == undefined ? 10 : comment_count_per_page;
 
-                    query_result = await sqlite['sequelize'].query(`
+                    query_result = await sqlite.sequelize.query(`
                         SELECT 
                           comments.comment_id, comments.contents, comments.date,
                           users.user_id as author_id, users.name as author
@@ -212,7 +212,7 @@ app.use('/graphql', graph({
                     comment_page = comment_page == undefined ? 0 : comment_page;
                     comment_count_per_page = comment_count_per_page == undefined ? 10 : comment_count_per_page;
 
-                    query_result = await sqlite['sequelize'].query(`
+                    query_result = await sqlite.sequelize.query(`
                         SELECT 
                           posts.post_id, posts.contents, posts.title, posts.date,
                           users.user_id as author_id, users.name as author
@@ -220,7 +220,7 @@ app.use('/graphql', graph({
                         AND POSTS.post_id = ?`,
                         { replacements: [post_id] });
 
-                    comment_list = await sqlite['sequelize'].query(`
+                    comment_list = await sqlite.sequelize.query(`
                         SELECT 
                           comments.comment_id, comments.contents, comments.date,
                           users.user_id as author_id, users.name as author
@@ -228,14 +228,14 @@ app.use('/graphql', graph({
                         AND comments.post_id = ? LIMIT ? OFFSET ?`,
                         { replacements: [post_id, comment_count_per_page, comment_page * comment_count_per_page] });
 
-                    query_result[0][0]['comments'] = comment_list[0]
+                    query_result[0][0].comments = comment_list[0]
                     return query_result[0][0];
                 },
                 post_list: async function get_comment_list(_, {comment_page, comment_count_per_page}) {
                     comment_page = comment_page == undefined ? 0 : comment_page;
                     comment_count_per_page = comment_count_per_page == undefined ? 10 : comment_count_per_page;
 
-                    query_result = await sqlite['sequelize'].query(`
+                    query_result = await sqlite.sequelize.query(`
                         SELECT 
                           posts.post_id, posts.contents, posts.title, posts.date,
                           users.user_id as author_id, users.name as author
@@ -251,11 +251,11 @@ app.use('/graphql', graph({
                     post_page = post_page == undefined ? 0 : post_page;
                     post_count_per_page = post_count_per_page == undefined ? 10 : post_count_per_page;
 
-                    query_result = await sqlite['user'].findAll(
+                    query_result = await sqlite.user.findAll(
                         {attributes: ['user_id', 'name', 'regdate'],
                             where: {user_id: user_id}});
 
-                    comment_list = await sqlite['sequelize'].query(`
+                    comment_list = await sqlite.sequelize.query(`
                         SELECT 
                             comments.comment_id, comments.contents, comments.date,
                             users.user_id as author_id, users.name as author
@@ -263,7 +263,7 @@ app.use('/graphql', graph({
                         AND USERS.USER_ID = ? LIMIT ? OFFSET ?`,
                         { replacements: [user_id, comment_count_per_page, comment_page * comment_count_per_page] });
 
-                    post_list = await sqlite['sequelize'].query(`
+                    post_list = await sqlite.sequelize.query(`
                         SELECT 
                             posts.post_id, posts.contents, posts.title, posts.date,
                             users.user_id as author_id, users.name as author
@@ -271,15 +271,15 @@ app.use('/graphql', graph({
                         AND USERS.USER_ID = ? LIMIT ? OFFSET ?`,
                         { replacements: [user_id, post_count_per_page, post_page * post_count_per_page] });
 
-                    query_result[0]['commented'] = comment_list[0]
-                    query_result[0]['posted'] = post_list[0]
+                    query_result[0].commented = comment_list[0]
+                    query_result[0].posted = post_list[0]
                     return query_result[0];
                 },
                 user_list:async function get_comment_list(_, {user_page, user_count_per_page}) {
                     user_page = user_page == undefined ? 0 : user_page;
                     user_count_per_page = user_count_per_page == undefined ? 10 : user_count_per_page;
 
-                    query_result = await sqlite['user'].findAll(
+                    query_result = await sqlite.user.findAll(
                         {attributes: ['user_id', 'name', 'regdate'],
                             limit:user_count_per_page,
                             offset:user_page * user_count_per_page});;
