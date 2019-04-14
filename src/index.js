@@ -15,7 +15,6 @@ app.get("/post/:id", function (req, res) {
         {
             attributes: ["post_id", "user_id", "title", "contents", "date"],
             where: {post_id: req.params.id}}).then(post => {
-        console.log(post);
         res.send(post);
     });
 });
@@ -37,7 +36,6 @@ app.post("/post", function (req, res) {
         contents: req.body.contents,
         date: new Date().toISOString()
     }).then(created_post => {
-        console.log(created_post.post_id);
         res.send({
             "status": "success",
             "id": created_post.post_id
@@ -168,7 +166,6 @@ app.post("/user", function (req, res) {
     sqlite.user.create({
         name: req.body.name,
         regdate: new Date().toISOString() }).then(created_user => {
-            console.log(created_user.user_id);
             res.send({
                 "status": "success",
                 "id": created_user.user_id
@@ -291,5 +288,5 @@ app.use("/graphql", graph({
 
 
 app.listen(3000, function () {
-    console.log("Example app listening on port 3000!");
+    console.log("app listening on port 3000!");
 });
