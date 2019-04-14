@@ -1,32 +1,32 @@
-const graph      = require('express-graphql');
-const sqlite     = require('./sqlite.js');
-const express    = require('express');
-const bodyParser = require('body-parser');
-const graphql_schema = require('./graphql_schema.js')
-const { makeExecutableSchema } = require('graphql-tools');
+const graph      = require("express-graphql");
+const sqlite     = require("./sqlite.js");
+const express    = require("express");
+const bodyParser = require("body-parser");
+const graphql_schema = require("./graphql_schema.js")
+const { makeExecutableSchema } = require("graphql-tools");
 
 const app = express();
 
 app.use(bodyParser.json());
 
 // - Post
-app.get('/post/:id', function (req, res) {
+app.get("/post/:id", function (req, res) {
     sqlite.post.findAll(
         {
-            attributes: ['post_id', 'user_id', 'title', 'contents', 'date'],
+            attributes: ["post_id", "user_id", "title", "contents", "date"],
             where: {post_id: req.params.id}}).then(post => {
         console.log(post);
         res.send(post);
     });
 });
 
-app.post('/post', function (req, res) {
+app.post("/post", function (req, res) {
     // validation check
-    if (req.body.author_id == undefined || req.body.title == undefined)
+    if (!req.body.author_id || !req.body.title)
     {
         res.send({
             "status": "error",
-            "reason": "field missing not null field one of ['author_id', title]"
+            "reason": "field missing not null field one of ['author_id', 'title']"
         });
         return;
     }
@@ -45,8 +45,8 @@ app.post('/post', function (req, res) {
     });
 });
 
-app.put('/post/:id', function (req, res) {
-    if (req.body.contents == undefined || req.body.title == undefined)
+app.put("/post/:id", function (req, res) {
+    if (!req.body.contents || !req.body.title)
     {
         res.send({
             "status": "error",
@@ -68,7 +68,7 @@ app.put('/post/:id', function (req, res) {
         });
 });
 
-app.delete('/post/:id', function (req, res) {
+app.delete("/post/:id", function (req, res) {
     sqlite.post.destroy({
         where: { post_id: req.params.id }
     })
@@ -80,19 +80,18 @@ app.delete('/post/:id', function (req, res) {
 });
 
 // - comment
-app.get('/comment/:id', function (req, res) {
+app.get("/comment/:id", function (req, res) {
     sqlite.comment.findAll(
         {
-            attributes: ['comment_id', 'user_id', 'post_id', 'contents', 'date'],
+            attributes: ["comment_id", "user_id", "post_id", "contents", "date"],
             where: {comment_id: req.params.id}}).then(comment => {
         res.send(comment);
     });
 });
 
-app.post('/comment', function (req, res) {
+app.post("/comment", function (req, res) {
     // validation check
-    if (req.body.post_id == undefined || req.body.author_id == undefined  ||
-        req.body.contents == undefined)
+    if (!req.body.post_id || !req.body.author_id || !req.body.contents)
     {
         res.send({
             "status": "error",
@@ -107,7 +106,6 @@ app.post('/comment', function (req, res) {
         contents: req.body.contents,
         date: new Date().toISOString()
     }).then(created_comment => {
-        created_comment.comment_id);
         res.send({
             "status": "success",
             "id": created_comment.comment_id
@@ -115,8 +113,8 @@ app.post('/comment', function (req, res) {
     });
 });
 
-app.put('/comment/:id', function (req, res) {
-    if (req.body.contents == undefined)
+app.put("/comment/:id", function (req, res) {
+    if (!req.body.contents)
     {
         res.send({
             "status": "error",
@@ -137,7 +135,7 @@ app.put('/comment/:id', function (req, res) {
     })
 });
 
-app.delete('/comment/:id', function (req, res) {
+app.delete("/comment/:id", function (req, res) {
     sqlite.comment.destroy({
         where: { comment_id: req.params.id }
     })
@@ -149,18 +147,18 @@ app.delete('/comment/:id', function (req, res) {
 });
 
 // - user
-app.get('/user/:id', function (req, res) {
+app.get("/user/:id", function (req, res) {
     sqlite.user.findAll(
-        {attributes: ['user_id', 'name', 'regdate'],
+        {attributes: ["user_id", "name", "regdate"],
             where: {user_id: req.params.id}}).then(users => {
         res.send(users);
     });
 });
 
-app.post('/user', function (req, res) {
+app.post("/user", function (req, res) {
     // validation check / need name only
     // { "name": "John Doe" }
-    if (req.body.name == undefined)
+    if (!req.body.name)
     {
         res.send({
             "status": "error",
@@ -179,7 +177,7 @@ app.post('/user', function (req, res) {
 });
 
 
-app.use('/graphql', graph({
+app.use("/graphql", graph({
     schema: makeExecutableSchema({
         typeDefs: graphql_schema,
         resolvers: {
@@ -252,7 +250,7 @@ app.use('/graphql', graph({
                     post_count_per_page = post_count_per_page == undefined ? 10 : post_count_per_page;
 
                     query_result = await sqlite.user.findAll(
-                        {attributes: ['user_id', 'name', 'regdate'],
+                        {attributes: ["user_id", "name", "regdate"],
                             where: {user_id: user_id}});
 
                     comment_list = await sqlite.sequelize.query(`
@@ -280,7 +278,7 @@ app.use('/graphql', graph({
                     user_count_per_page = user_count_per_page == undefined ? 10 : user_count_per_page;
 
                     query_result = await sqlite.user.findAll(
-                        {attributes: ['user_id', 'name', 'regdate'],
+                        {attributes: ["user_id", "name", "regdate"],
                             limit:user_count_per_page,
                             offset:user_page * user_count_per_page});;
                     return query_result;
@@ -293,5 +291,5 @@ app.use('/graphql', graph({
 
 
 app.listen(3000, function () {
-    console.log('Example app listening on port 3000!');
+    console.log("Example app listening on port 3000!");
 });
